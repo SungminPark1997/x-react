@@ -1,4 +1,5 @@
 import { styled } from "styled-components";
+import { auth } from "../firebase";
 
 export const Wrapper = styled.div`
   height: 100%;
@@ -47,3 +48,8 @@ export const Switcher = styled.span`
     color: #1d9bf0;
   }
 `;
+
+export default function logout() {
+  console.log("로그아웃 시도");
+  auth.signOut();
+}

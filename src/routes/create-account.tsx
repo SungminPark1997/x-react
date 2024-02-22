@@ -40,7 +40,7 @@ export default function CreateAccount() {
   };
   return (
     <Wrapper>
-      <Title>Log into 𝕏</Title>
+      <Title>Create Account 𝕏</Title>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Input {...register("name")} placeholder="Name" type="text" required />
         <Input {...register("email")} placeholder="Email" type="email" />
