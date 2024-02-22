@@ -43,6 +43,7 @@ const Wrapper = styled.div`
   display: flex;
   justify-content: center;
 `;
+
 function App() {
   const [isLoading, setLoading] = useState(true);
   const init = async () => {
@@ -54,7 +55,7 @@ function App() {
   }, []);
   return (
     <Wrapper>
-      <RouterProvider router={router} />
+      {isLoading ? <h1>loading...</h1> : <RouterProvider router={router} />}
     </Wrapper>
   );
 }
