@@ -1,10 +1,14 @@
+import { styled } from "styled-components";
 import logout from "../components/auth-components";
 import { auth } from "../firebase";
-
+import PostTweetForm from "../components/post-tweet-form";
+import Timeline from "../components/timeline";
+const Wrapper = styled.div``;
 export default function Home() {
   return (
-    <h1>
-      <button onClick={logout}>Log Out</button>
-    </h1>
+    <Wrapper>
+      <PostTweetForm />
+      <Timeline />
+    </Wrapper>
   );
 }
