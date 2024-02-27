@@ -11,6 +11,8 @@ import { styled } from "styled-components";
 import { db } from "../firebase";
 import Tweet from "./tweet";
 import { Unsubscribe } from "firebase/auth";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { isModal } from "../atoms";
 
 export interface ITweet {
   id: string;
@@ -21,11 +23,13 @@ export interface ITweet {
   createdAt: number;
 }
 
-const Wrapper = styled.div``;
+const Wrapper = styled.div`
+  position: relative;
+`;
 
 export default function Timeline() {
   const [tweets, setTweet] = useState<ITweet[]>([]);
-
+  const [modal, setModal] = useRecoilState(isModal);
   useEffect(() => {
     let unsubscribe: Unsubscribe | null = null;
     const fetchTweets = async () => {
@@ -34,18 +38,7 @@ export default function Timeline() {
         orderBy("createdAt", "desc"),
         limit(25)
       );
-      /* const spanshot = await getDocs(tweetsQuery);
-        const tweets = spanshot.docs.map((doc) => {
-          const { tweet, createdAt, userId, username, photo } = doc.data();
-          return {
-            tweet,
-            createdAt,
-            userId,
-            username,
-            photo,
-            id: doc.id,
-          };
-        }); */
+
       unsubscribe = await onSnapshot(tweetsQuery, (snapshot) => {
         const tweets = snapshot.docs.map((doc) => {
           const { tweet, createdAt, userId, username, photo } = doc.data();

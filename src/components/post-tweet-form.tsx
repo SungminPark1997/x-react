@@ -66,10 +66,6 @@ export default function PostTweetForm() {
   const [file, setFile] = useState<File | null>(null);
   const [fileSelected, setFileSelected] = useState(false);
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(
-      "야 파일 등록은 아니고 사진 잠깐 파일에 올렸어~",
-      e.target.files ? e.target.files[0] : null
-    );
     if (file) {
       setFile(e.target.files ? e.target.files[0] : file);
     }

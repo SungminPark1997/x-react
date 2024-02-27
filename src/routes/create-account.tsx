@@ -2,9 +2,15 @@ import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { auth } from "../firebase";
-import { Form, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FirebaseError } from "firebase/app";
-import { Input, Switcher, Title, Wrapper } from "../components/auth-components";
+import {
+  Form,
+  Input,
+  Switcher,
+  Title,
+  Wrapper,
+} from "../components/auth-components";
 
 export default function CreateAccount() {
   const navigate = useNavigate();
@@ -16,8 +22,6 @@ export default function CreateAccount() {
   const [isLoading, setLoading] = useState(false);
   const passwordError = errors?.password;
   const onSubmit = async (data: any) => {
-    console.log(data);
-
     try {
       setLoading(true);
       const credentials = await createUserWithEmailAndPassword(
@@ -25,7 +29,6 @@ export default function CreateAccount() {
         data.email,
         data.password
       );
-
       await updateProfile(credentials.user, {
         displayName: data.name,
       });

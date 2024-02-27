@@ -11,7 +11,7 @@ export const Wrapper = styled.div`
 `;
 
 export const Title = styled.h1`
-  font-size: 42px;
+  font-size: 40px;
 `;
 
 export const Form = styled.form`
@@ -21,6 +21,7 @@ export const Form = styled.form`
   flex-direction: column;
   gap: 10px;
   width: 100%;
+  height: 200px;
 `;
 
 export const Input = styled.input`
