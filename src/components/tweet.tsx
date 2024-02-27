@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useRecoilState } from "recoil";
 import { isModal } from "../atoms";
 import { Navigate, useNavigate } from "react-router-dom";
+import { Input } from "./auth-components";
 
 const Wrapper = styled.div`
   display: grid;
@@ -103,9 +104,6 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
         <Username>{username}</Username>
         <Payload>{tweet}</Payload>
         {photo ? <Photo src={photo} /> : null}
-        {user?.uid === userId ? (
-          <DeleteButton onClick={onDelete}>Delete</DeleteButton>
-        ) : null}
       </Column>
 
       <Column>
@@ -118,7 +116,7 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
               ) : (
                 <ModalItem onClick={onDelete}>해당 게시물 추천 안함</ModalItem>
               )}
-              <ModalItem>수정하기</ModalItem>
+
               <ModalItem></ModalItem>
             </Modal>
           ) : null}

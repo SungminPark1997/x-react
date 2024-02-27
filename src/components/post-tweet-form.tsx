@@ -87,9 +87,6 @@ export default function PostTweetForm() {
       });
 
       if (file) {
-        console.log("야 파일 뭐냐?", file);
-        //const file = data.file[0];
-        //console.log(file);
         const locationRef = ref(
           storage,
           `tweets/${user.uid}-${user.displayName}/${doc.id}`

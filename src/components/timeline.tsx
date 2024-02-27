@@ -29,7 +29,7 @@ const Wrapper = styled.div`
 
 export default function Timeline() {
   const [tweets, setTweet] = useState<ITweet[]>([]);
-  const [modal, setModal] = useRecoilState(isModal);
+
   useEffect(() => {
     let unsubscribe: Unsubscribe | null = null;
     const fetchTweets = async () => {
