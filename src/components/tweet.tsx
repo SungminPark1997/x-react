@@ -5,10 +5,15 @@ import { auth, db, storage } from "../firebase";
 import { deleteObject, ref } from "firebase/storage";
 import { EllipsisHorizontalIcon } from "./arrow-right";
 import { useState } from "react";
+import { Form, Input } from "./auth-components";
+import { useForm } from "react-hook-form";
+import PostTweetForm, {
+  AttachFileButton,
+  AttachFileInput,
+  TextArea,
+} from "./post-tweet-form";
 import { useRecoilState } from "recoil";
-import { isModal } from "../atoms";
-import { Navigate, useNavigate } from "react-router-dom";
-import { Input } from "./auth-components";
+import { isEdit } from "../atoms";
 
 const Wrapper = styled.div`
   display: grid;
@@ -45,17 +50,7 @@ const Payload = styled.p`
   margin: 10px 0px;
   font-size: 18px;
 `;
-const DeleteButton = styled.button`
-  background-color: tomato;
-  color: white;
-  font-weight: 600;
-  border: 0;
-  font-size: 12px;
-  padding: 5px 10px;
-  text-transform: uppercase;
-  border-radius: 5px;
-  cursor: pointer;
-`;
+
 const Icon = styled(EllipsisHorizontalIcon)`
   width: 48px;
 `;
@@ -65,7 +60,7 @@ const Modal = styled.div`
   border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.5);
   display: grid;
-  grid-template-row: 1fr 1fr 1fr 1fr 1fr;
+  grid-template-row: 1fr 1fr;
 
   margin-right: 20px;
 `;
@@ -73,16 +68,19 @@ const Modal = styled.div`
 const ModalItem = styled.div`
   display: flex;
   justify-content: center;
+  padding: 5px;
   &:first-child {
     color: red;
   }
 `;
 export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
   const user = auth.currentUser;
-
   const [modal, setModal] = useState(false);
-  const onClick = () => {
-    setModal(!modal);
+  const [edit, setEdit] = useState(false);
+
+  const childrenEdit = () => {
+    setEdit(false);
+    console.log("수정 완료");
   };
   const onDelete = async () => {
     const ok = confirm("Are you sure you want to delete this tweet?");
@@ -98,26 +96,44 @@ export default function Tweet({ username, photo, tweet, userId, id }: ITweet) {
     } finally {
     }
   };
+
   return (
-    <Wrapper onClick={onClick}>
-      <Column>
-        <Username>{username}</Username>
-        <Payload>{tweet}</Payload>
-        {photo ? <Photo src={photo} /> : null}
+    <Wrapper>
+      <Column onClick={() => setModal(false)}>
+        {edit ? (
+          <>
+            <>
+              <PostTweetForm
+                username={username}
+                photo={photo}
+                tweet={tweet}
+                userId={userId}
+                id={id}
+                childrenEdit={childrenEdit}
+              />
+            </>
+          </>
+        ) : (
+          <>
+            <Username>{username}</Username>
+            <Payload>{tweet}</Payload> {photo ? <Photo src={photo} /> : null}
+          </>
+        )}
       </Column>
 
       <Column>
-        <IconContainer onClick={onClick}>
+        <IconContainer onClick={() => setModal(true)}>
           <Icon />
           {modal ? (
             <Modal>
               {user?.uid === userId ? (
-                <ModalItem onClick={onDelete}>삭제하기</ModalItem>
+                <>
+                  <ModalItem onClick={onDelete}>삭제하기</ModalItem>
+                  <ModalItem onClick={() => setEdit(true)}>수정하기</ModalItem>
+                </>
               ) : (
                 <ModalItem onClick={onDelete}>해당 게시물 추천 안함</ModalItem>
               )}
-
-              <ModalItem></ModalItem>
             </Modal>
           ) : null}
         </IconContainer>

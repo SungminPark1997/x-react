@@ -2,8 +2,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { styled } from "styled-components";
 import { auth, db, storage } from "../firebase";
-import { addDoc, collection, updateDoc } from "firebase/firestore";
+import { addDoc, collection, doc, updateDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { ITweet } from "./timeline";
+import { useRecoilState } from "recoil";
+import { isEdit } from "../atoms";
 
 const Form = styled.form`
   display: flex;
@@ -11,7 +14,7 @@ const Form = styled.form`
   gap: 10px;
 `;
 
-const TextArea = styled.textarea`
+export const TextArea = styled.textarea`
   border: 2px solid white;
   padding: 20px;
   border-radius: 20px;
@@ -31,7 +34,7 @@ const TextArea = styled.textarea`
   }
 `;
 
-const AttachFileButton = styled.label`
+export const AttachFileButton = styled.label`
   padding: 10px 0px;
   color: #1d9bf0;
   text-align: center;
@@ -42,11 +45,11 @@ const AttachFileButton = styled.label`
   cursor: pointer;
 `;
 
-const AttachFileInput = styled.input`
+export const AttachFileInput = styled.input`
   display: none;
 `;
 
-const SubmitBtn = styled.input`
+export const SubmitBtn = styled.input`
   background-color: #1d9bf0;
   color: white;
   border: none;
@@ -59,12 +62,28 @@ const SubmitBtn = styled.input`
     opacity: 0.9;
   }
 `;
-
-export default function PostTweetForm() {
+interface PostTweetFormProps {
+  username?: string;
+  photo?: string;
+  tweet?: string;
+  userId?: string;
+  id?: string;
+  childrenEdit: () => void;
+}
+export default function PostTweetForm({
+  username,
+  photo,
+  tweet,
+  userId,
+  id,
+  childrenEdit,
+}: PostTweetFormProps) {
   const [isLoading, setLoading] = useState(false);
+
   const { register, handleSubmit, watch } = useForm();
   const [file, setFile] = useState<File | null>(null);
   const [fileSelected, setFileSelected] = useState(false);
+
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (file) {
       setFile(e.target.files ? e.target.files[0] : file);
@@ -73,34 +92,65 @@ export default function PostTweetForm() {
     setFileSelected(!!e.target.files?.length);
   };
   const onSubmit = async (data: any) => {
+    const obj = { username, photo, tweet, userId, id };
     const user = auth.currentUser;
-    console.log(data);
-    if (!user || isLoading) return;
-
-    try {
-      setLoading(true);
-      const doc = await addDoc(collection(db, "tweets"), {
-        tweet: data?.tweet,
-        createdAt: Date.now(),
-        username: user.displayName || "Anonymous",
-        userId: user.uid,
-      });
-
-      if (file) {
-        const locationRef = ref(
-          storage,
-          `tweets/${user.uid}-${user.displayName}/${doc.id}`
-        );
-        const result = await uploadBytes(locationRef, file);
-        const url = await getDownloadURL(result.ref);
-        await updateDoc(doc, {
-          photo: url,
-        });
+    if (obj.id) {
+      const tweetRef = doc(db, "tweets", obj.id);
+      if (obj.photo) {
+        setLoading(true);
+        try {
+          await updateDoc(tweetRef, {
+            tweet: data?.tweet,
+            createdAt: Date.now(),
+          });
+        } catch (e) {
+          console.log(e);
+        } finally {
+          setLoading(false);
+          childrenEdit();
+        }
+      } else {
+        setLoading(true);
+        try {
+          await updateDoc(tweetRef, {
+            tweet: data.tweet,
+            createdAt: Date.now(),
+          });
+        } catch (e) {
+          console.log(e);
+        } finally {
+          setLoading(false);
+          childrenEdit();
+        }
       }
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setLoading(false);
+    } else {
+      if (!user || isLoading) return;
+
+      try {
+        setLoading(true);
+        const doc = await addDoc(collection(db, "tweets"), {
+          tweet: data?.tweet,
+          createdAt: Date.now(),
+          username: user.displayName || "Anonymous",
+          userId: user.uid,
+        });
+
+        if (file) {
+          const locationRef = ref(
+            storage,
+            `tweets/${user.uid}-${user.displayName}/${doc.id}`
+          );
+          const result = await uploadBytes(locationRef, file);
+          const url = await getDownloadURL(result.ref);
+          await updateDoc(doc, {
+            photo: url,
+          });
+        }
+      } catch (e) {
+        console.log(e);
+      } finally {
+        setLoading(false);
+      }
     }
   };
   return (
@@ -108,7 +158,7 @@ export default function PostTweetForm() {
       <TextArea
         {...register("tweet", { required: true, maxLength: 180 })}
         rows={5}
-        placeholder="What is happening?!"
+        placeholder={id ? "Editing..." : "What is happening?!"}
       />
       <AttachFileButton htmlFor="file">
         {fileSelected ? "Photo added ✅" : "Add photo"}
